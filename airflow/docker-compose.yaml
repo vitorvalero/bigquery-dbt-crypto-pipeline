@@ -51,6 +51,8 @@ x-airflow-common:
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
   # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.5}
   build: .
+  env_file:
+    - .env
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -59,7 +61,7 @@ x-airflow-common:
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
@@ -77,6 +79,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ./credentials/bigquery-dbt-crypto-pipeline-090dfc645ea8.json:/opt/airflow/credentials/bigquery-dbt-crypto-pipeline-090dfc645ea8.json
+    - ./.env:/opt/airflow/.env
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -85,7 +89,7 @@ x-airflow-common:
     postgres:
       condition: service_healthy
   networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
 services:
   postgres:
@@ -103,7 +107,7 @@ services:
       start_period: 5s
     restart: always
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -119,7 +123,7 @@ services:
       start_period: 30s
     restart: always
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-webserver:
     <<: *airflow-common
@@ -138,7 +142,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-scheduler:
     <<: *airflow-common
@@ -155,7 +159,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-worker:
     <<: *airflow-common
@@ -180,7 +184,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-triggerer:
     <<: *airflow-common
@@ -197,7 +201,7 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-init:
     <<: *airflow-common
@@ -263,7 +267,7 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
   airflow-cli:
     <<: *airflow-common
@@ -273,7 +277,7 @@ services:
       <<: *airflow-common-env
       CONNECTION_CHECK_MAX_COUNT: "0"
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
     # Workaround for entrypoint issue. See: https://github.com/apache/airflow/issues/16252
     command:
       - bash
@@ -302,11 +306,13 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - pipeline-trading-airflow-bigquery-dbt
+      - bigquery-dbt-crypto-pipeline
 
 volumes:
   postgres-db-volume:
 
 networks:
-  pipeline-trading-airflow-bigquery-dbt:
+  bigquery-dbt-crypto-pipeline:
+    name: bigquery-dbt-crypto-pipeline
     driver: bridge
+    external: true

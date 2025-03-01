@@ -1,3 +1,4 @@
 /airflow/.env
 /metabase/.env
 /dbt/.env
+/airflow/credentials/*.json
