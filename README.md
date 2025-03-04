@@ -46,24 +46,13 @@ A estrutura do projeto foi elaborada do zero, bem como seu planejamento, arquite
 
 ## 🗂 Estrutura do Projeto
 
-<div style="display: flex; align-items: center;">
-  <img src="docs/estrutura.png" width="250" style="margin-right: 20px;">
-  <div>
-    <p><strong>📂 airflow/</strong> → Configuração do Airflow e DAGs do pipeline.</p>
-    <br>
-    <p><strong>📂 dags/</strong> → DAGs do Airflow para extração e carga de dados.</p>
-    <br>
-    <p><strong>📂 dags/tasks/</strong> → Tarefas individuais que compõem as DAGs.</p>
-    <br>
-    <p><strong>📂 dags/utils/</strong> → Funções auxiliares para extração e transformação.</p>
-    <br>
-    <p><strong>📂 dbt/</strong> → (Futuro) Diretório reservado para os modelos do DBT.</p>
-    <br>
-    <p><strong>📂 metabase/</strong> → Configuração do Metabase para visualização de dados.</p>
-    <br>
-    <p><strong>📂 scripts/</strong> → Scripts para ligar/desligar serviços.</p>
-  </div>
-</div>
+- **📂 airflow/** → Configuração do Airflow e DAGs do pipeline.  
+- **📂 dags/** → DAGs do Airflow para extração e carga de dados.  
+  - **📂 dags/tasks/** → Tarefas individuais que compõem as DAGs.  
+  - **📂 dags/utils/** → Funções auxiliares para extração e transformação.  
+- **📂 dbt/** → (Futuro) Diretório reservado para os modelos do DBT.  
+- **📂 metabase/** → Configuração do Metabase para visualização de dados.  
+- **📂 scripts/** → Scripts para ligar/desligar serviços.  
 
 ---
 
