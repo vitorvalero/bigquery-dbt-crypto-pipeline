@@ -2,5 +2,6 @@
 /metabase/.env
 /dbt/.env
 /airflow/credentials/*.json
-/.idea
-/airflow/logs
+/.idea/
+/airflow/logs/
+/airflow/dags/__pycache__/
