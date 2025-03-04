@@ -2,3 +2,5 @@
 /metabase/.env
 /dbt/.env
 /airflow/credentials/*.json
+/.idea
+/airflow/logs
