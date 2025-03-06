@@ -1,13 +1,12 @@
 gcp:
-  project: "bigquery-dbt-crypto-pipeline"
+  project: "bigquery-dbt-crypto-pipeline" 
   bucket_name: "binance-api"
   dataset_id: "raw"
-  table_id: "binance_klines"
   bigquery_conn_id: "bigquery-con"
 
 binance:
   base_url: "https://api.binance.com/api/v3/klines"
   cryptos: ["BTCBRL", "ETHBRL", "SOLBRL"]
   interval: "1m"
-  limit: 720
-  default_start_time: 1640995200000  # 1º de janeiro de 2022
+  limit: 1000
+  default_start_time: 1577836800000 # 2020-01-01 00:00:00
