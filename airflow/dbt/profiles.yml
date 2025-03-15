@@ -1,0 +1,12 @@
+bigquery-dbt-crypto-pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: bigquery-dbt-crypto-pipeline
+      dataset: crypto_pipeline
+      keyfile: "/root/.gcloud/bigquery-dbt-crypto-pipeline-090dfc645ea8.json"
+      location: "southamerica-east1"
+      priority: interactive
+      threads: 4

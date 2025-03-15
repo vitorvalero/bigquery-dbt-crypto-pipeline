@@ -4,6 +4,7 @@ from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 
 
 def get_loaded_files_from_bq(client, gcp_project, dataset_id):
+    # Recupera a lista de arquivos já carregados no BigQuery
     query = f"""
         SELECT source_file FROM `{gcp_project}.{dataset_id}.bq_load_tracking`
     """
@@ -12,40 +13,8 @@ def get_loaded_files_from_bq(client, gcp_project, dataset_id):
     return {row[0] for row in result}
 
 
-def get_last_parquet_from_gcs(symbol, bucket_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-
-    blobs = list(bucket.list_blobs(prefix=f"binance_klines/{symbol}/"))
-
-    parquet_files = [
-        blob.name
-        for blob in blobs
-        if re.search(
-            r"binance_klines/[A-Z0-9]+/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_\d{4}-\d{2}-\d{2}-\d{2}\d{2}\.parquet$",
-            blob.name,
-        )
-    ]
-
-    if not parquet_files:
-        return None
-
-    def extract_datetime_key(filename):
-        match = re.search(
-            r"binance_klines/[A-Z0-9]+/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})\.parquet$",
-            filename,
-        )
-        if match:
-            year, month, day, hour, minute = map(int, match.groups())
-            return (year, month, day, hour, minute)
-        return (0, 0, 0, 0, 0)
-
-    parquet_files.sort(key=extract_datetime_key, reverse=True)
-
-    return parquet_files[0]
-
-
 def get_parquet_files_from_gcs(bucket_name, prefix="binance_klines/"):
+    # Lista todos os arquivos Parquet disponíveis no GCS dentro do prefixo especificado
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
 
@@ -55,6 +24,7 @@ def get_parquet_files_from_gcs(bucket_name, prefix="binance_klines/"):
     for blob in blobs:
         print(f"- {blob.name}")
 
+    # Filtra os arquivos que seguem o padrão esperado
     regex = re.compile(
         r"binance_klines/[A-Z0-9]+/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_\d{4}-\d{2}-\d{2}-\d{2}\d{2}\.parquet$",
         re.IGNORECASE,
@@ -70,11 +40,13 @@ def get_parquet_files_from_gcs(bucket_name, prefix="binance_klines/"):
 
 
 def get_bigquery_client(conn_id):
+    # Obtém um cliente autenticado para o BigQuery
     hook = BigQueryHook(gcp_conn_id=conn_id)
     return hook.get_client()
 
 
 def get_bigquery_job_config():
+    # Define a configuração para carregamento de dados no BigQuery
     return bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.PARQUET,
         write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
@@ -86,6 +58,7 @@ def get_bigquery_job_config():
 
 
 def extract_symbol_from_filename(file_path):
+    # Extrai o símbolo da criptomoeda a partir do nome do arquivo Parquet
     match = re.search(
         r"binance_klines/([A-Z0-9]+)/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_\d{4}-\d{2}-\d{2}-\d{2}\d{2}\.parquet",
         file_path,
@@ -96,8 +69,26 @@ def extract_symbol_from_filename(file_path):
         raise ValueError(f"Não foi possível extrair o símbolo do arquivo: {file_path}")
 
 
+def create_raw_dataset(conn_id, datasets, gcp_project, location):
+    # Cria um dataset no BigQuery se ele ainda não existir
+    hook = BigQueryHook(gcp_conn_id=conn_id)
+    client = hook.get_client()
+
+    for dataset in datasets:
+        dataset_ref = f"{gcp_project}.{dataset}"
+        dataset_obj = bigquery.Dataset(dataset_ref)
+        dataset_obj.location = location
+
+        try:
+            client.create_dataset(dataset_obj, exists_ok=True)
+            print(f"Dataset {dataset_ref} criado ou já existente.")
+        except Exception as e:
+            print(f"Erro ao criar {dataset_ref}: {e}")
+
+
 def create_bigquery_table_if_not_exists(client, gcp_project, dataset_id, symbol):
-    table_id_full = f"{gcp_project}.{dataset_id}.binance_klines_{symbol}"
+    # Cria a tabela no BigQuery se ela ainda não existir
+    table_id_full = f"{gcp_project}.{dataset_id}.raw_binance_klines_{symbol}"
 
     schema = [
         bigquery.SchemaField("open_time", "INTEGER"),
@@ -133,6 +124,7 @@ def create_bigquery_table_if_not_exists(client, gcp_project, dataset_id, symbol)
 
 
 def create_bq_tracking_table(client, gcp_project, dataset_id):
+    # Cria a tabela de rastreamento de arquivos carregados no BigQuery
     table_id = f"{gcp_project}.{dataset_id}.bq_load_tracking"
 
     schema = [
@@ -152,7 +144,8 @@ def create_bq_tracking_table(client, gcp_project, dataset_id):
 
 
 def update_bigquery_table(client, gcp_project, dataset_id, symbol):
-    table_id_full = f"{gcp_project}.{dataset_id}.binance_klines_{symbol}"
+    # Atualiza os timestamps no BigQuery convertendo os valores de open_time e close_time
+    table_id_full = f"{gcp_project}.{dataset_id}.raw_binance_klines_{symbol}"
 
     update_query = f"""
         UPDATE `{table_id_full}`
@@ -165,6 +158,7 @@ def update_bigquery_table(client, gcp_project, dataset_id, symbol):
 
 
 def check_if_file_exists(client, gcp_project, dataset_id, file_path):
+    # Verifica se um arquivo já foi carregado no BigQuery
     query = f"""
         SELECT COUNT(*) FROM `{gcp_project}.{dataset_id}.bq_load_tracking`
         WHERE source_file = "{file_path}"
@@ -174,6 +168,7 @@ def check_if_file_exists(client, gcp_project, dataset_id, file_path):
 
 
 def mark_file_as_loaded(client, gcp_project, dataset_id, file_path):
+    # Registra no BigQuery que um arquivo foi carregado com sucesso
     query = f"""
         INSERT INTO `{gcp_project}.{dataset_id}.bq_load_tracking` (source_file, loaded_at)
         VALUES ("{file_path}", CURRENT_TIMESTAMP())
@@ -182,6 +177,7 @@ def mark_file_as_loaded(client, gcp_project, dataset_id, file_path):
 
 
 def remove_failed_file(client, gcp_project, dataset_id, file_path):
+    # Remove um arquivo da tabela de rastreamento caso tenha falhado no carregamento
     query = f"""
         DELETE FROM `{gcp_project}.{dataset_id}.bq_load_tracking`
         WHERE source_file = "{file_path}"

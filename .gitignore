@@ -1,7 +1,13 @@
 /airflow/.env
 /metabase/.env
 /dbt/.env
-/airflow/credentials/*.json
+/airflow/credentials/
 /.idea/
 /airflow/logs/
 /airflow/dags/__pycache__/
+/dbt/logs/
+/dbt/.user.yml
+/dbt/profiles.yml
+/.vscode
+/airflow/dags/config/config.yaml
+*.log

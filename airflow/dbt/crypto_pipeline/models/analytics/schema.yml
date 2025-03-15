@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: market_summary
+    description: "Resumo diário do mercado para cada ativo."
+    columns:
+      - name: date
+        description: "Data de referência da agregação."
+        tests:
+          - not_null
+      - name: symbol
+        description: "Par de trading (BTCBRL, ETHBRL, SOLBRL)."
+        tests:
+          - not_null
+      - name: open_price
+        description: "Preço de abertura do dia."
+        tests:
+          - not_null
+      - name: high_price
+        description: "Maior preço do dia."
+        tests:
+          - not_null
+      - name: low_price
+        description: "Menor preço do dia."
+        tests:
+          - not_null
+      - name: close_price
+        description: "Preço de fechamento do dia."
+        tests:
+          - not_null
+      - name: volume
+        description: "Volume total negociado no dia."
+        tests:
+          - not_null
+      - name: number_of_trades
+        description: "Número total de negociações no dia."
+        tests:
+          - not_null
+
+  - name: market_volatility
+    description: "Cálculo da volatilidade diária dos ativos."
+    columns:
+      - name: date
+        description: "Data de referência."
+        tests:
+          - not_null
+      - name: symbol
+        description: "Par de trading."
+        tests:
+          - not_null
+      - name: volatility
+        description: "Variação percentual entre a máxima e a mínima do dia."
+        tests:
+          - not_null
+
+  - name: market_trend
+    description: "Métricas de tendência baseadas em médias móveis."
+    columns:
+      - name: date
+        description: "Data de referência."
+        tests:
+          - not_null
+      - name: symbol
+        description: "Par de trading."
+        tests:
+          - not_null
+      - name: sma_7
+        description: "Média móvel simples de 7 dias."
+        tests:
+          - not_null
+      - name: sma_30
+        description: "Média móvel simples de 30 dias."
+        tests:
+          - not_null
+      - name: ema_7
+        description: "Média móvel exponencial de 7 dias."
+        tests:
+          - not_null
+      - name: ema_30
+        description: "Média móvel exponencial de 30 dias."
+        tests:
+          - not_null
+
+  - name: market_liquidity
+    description: "Indicadores de liquidez baseados na razão volume/trades."
+    columns:
+      - name: date
+        description: "Data de referência."
+        tests:
+          - not_null
+      - name: symbol
+        description: "Par de trading."
+        tests:
+          - not_null
+      - name: liquidity_ratio
+        description: "Razão entre volume total negociado e número de trades."
+        tests:
+          - not_null
+
+  - name: market_returns
+    description: "Cálculo de retornos diários e acumulados."
+    columns:
+      - name: date
+        description: "Data de referência."
+        tests:
+          - not_null
+      - name: symbol
+        description: "Par de trading."
+        tests:
+          - not_null
+      - name: cumulative_return
+        description: "Retorno percentual acumulado desde o primeiro fechamento."
+        tests:
+          - not_null

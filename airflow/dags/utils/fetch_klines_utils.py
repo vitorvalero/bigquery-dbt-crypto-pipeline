@@ -3,15 +3,14 @@ import requests
 import re
 import time
 from airflow.exceptions import AirflowFailException
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 import tempfile
 import os
-import time
 import datetime
 import calendar
 
 
 def delete_parquet_from_gcs(bucket_name, gcs_path):
+    # Remove um arquivo Parquet do Google Cloud Storage
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)
@@ -23,10 +22,45 @@ def delete_parquet_from_gcs(bucket_name, gcs_path):
         print(f"Arquivo não encontrado para remoção: {gcs_path}")
 
 
-import datetime
+def get_last_parquet_from_gcs(symbol, bucket_name):
+    # Obtém o arquivo Parquet mais recente para um determinado símbolo no GCS
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+
+    blobs = list(bucket.list_blobs(prefix=f"binance_klines/{symbol}/"))
+
+    # Filtra apenas os arquivos Parquet válidos no formato esperado
+    parquet_files = [
+        blob.name
+        for blob in blobs
+        if re.search(
+            r"binance_klines/[A-Z0-9]+/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_\d{4}-\d{2}-\d{2}-\d{2}\d{2}\.parquet$",
+            blob.name,
+        )
+    ]
+
+    if not parquet_files:
+        return None
+
+    # Extrai o timestamp dos arquivos para ordenação
+    def extract_datetime_key(filename):
+        match = re.search(
+            r"binance_klines/[A-Z0-9]+/\d{4}/M\d{2}/[A-Z0-9]+_binance_klines_(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})\.parquet$",
+            filename,
+        )
+        if match:
+            year, month, day, hour, minute = map(int, match.groups())
+            return (year, month, day, hour, minute)
+        return (0, 0, 0, 0, 0)
+
+    # Ordena os arquivos do mais recente para o mais antigo
+    parquet_files.sort(key=extract_datetime_key, reverse=True)
+
+    return parquet_files[0]
 
 
 def get_last_timestamp(symbol, bucket_name):
+    # Obtém o timestamp do último arquivo Parquet salvo no GCS
     last_parquet_file = get_last_parquet_from_gcs(symbol, bucket_name)
 
     if last_parquet_file:
@@ -37,6 +71,7 @@ def get_last_timestamp(symbol, bucket_name):
         if match:
             year, month, day, hour, minute = map(int, match.groups())
 
+            # Converte os valores extraídos para um timestamp UTC
             dt_utc = datetime.datetime(
                 year, month, day, hour, minute, 0, tzinfo=datetime.timezone.utc
             )
@@ -58,6 +93,7 @@ def get_last_timestamp(symbol, bucket_name):
 
 
 def generate_gcs_path(symbol, start_time):
+    # Gera o caminho no GCS para armazenar o arquivo Parquet com base no timestamp
     dt_utc = datetime.datetime.utcfromtimestamp(start_time / 1000)
 
     year = dt_utc.year
@@ -77,6 +113,7 @@ def generate_gcs_path(symbol, start_time):
 
 
 def fetch_data(url, max_retries=3):
+    # Faz uma requisição à API da Binance com tentativas de retry
     retry_delay = 10
 
     for attempt in range(max_retries):
@@ -94,12 +131,14 @@ def fetch_data(url, max_retries=3):
 
 
 def save_dataframe_as_parquet(df):
+    # Salva um DataFrame temporariamente como um arquivo Parquet
     with tempfile.NamedTemporaryFile(delete=False, suffix=".parquet") as temp_parquet:
         df.to_parquet(temp_parquet.name, index=False)
         return temp_parquet.name
 
 
 def upload_file_to_gcs(bucket_name, local_file_path, gcs_path):
+    # Faz upload de um arquivo Parquet para o Google Cloud Storage
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(gcs_path)

@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: stg_binance_klines_BTCBRL
+    description: "Stage table for Binance Klines BTC/BRL"
+    columns:
+      - name: open_time_ts
+        description: "Timestamp of open time, used for partitioning"
+        tests:
+          - not_null
+      - name: close_time_ts
+        description: "Timestamp of close time"
+        tests:
+          - not_null
+
+  - name: stg_binance_klines_ETHBRL
+    description: "Stage table for Binance Klines ETH/BRL"
+    columns:
+      - name: open_time_ts
+        description: "Timestamp of open time, used for partitioning"
+        tests:
+          - not_null
+      - name: close_time_ts
+        description: "Timestamp of close time"
+        tests:
+          - not_null
+
+  - name: stg_binance_klines_SOLBRL
+    description: "Stage table for Binance Klines SOL/BRL"
+    columns:
+      - name: open_time_ts
+        description: "Timestamp of open time, used for partitioning"
+        tests:
+          - not_null
+      - name: close_time_ts
+        description: "Timestamp of close time"
+        tests:
+          - not_null
+
+  - name: stg_binance_klines
+    description: "Consolidated Binance Klines table"
+    columns:
+      - name: open_time_ts
+        description: "Timestamp of open time, used for partitioning"
+        tests:
+          - not_null
+      - name: close_time_ts
+        description: "Timestamp of close time"
+        tests:
+          - not_null
+      - name: symbol
+        description: "Trading pair symbol (e.g., BTCBRL, ETHBRL, SOLBRL)"
+        tests:
+          - not_null
+    tests:
+      - unique:
+          column_name: "(symbol || '-' || CAST(open_time_ts AS STRING))"

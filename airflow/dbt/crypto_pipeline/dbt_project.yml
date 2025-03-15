@@ -1,0 +1,26 @@
+name: 'crypto_pipeline'
+version: '1.0.0'
+config-version: 2
+
+profile: 'bigquery-dbt-crypto-pipeline'
+
+models:
+  crypto_pipeline:
+    stg:
+      +schema: stg
+      +materialized: table
+      +partition_by: 
+        field: "open_time_ts"
+        data_type: "timestamp"
+        granularity: "day"
+      +unique_key: ["open_time_ts", "symbol"]
+      +incremental_strategy: insert_overwrite
+
+    analytics:
+      +schema: analytics
+      +materialized: table
+      +partition_by: 
+        field: "date"
+        data_type: "date"
+        granularity: "day"
+      +unique_key: ["date", "symbol"]
