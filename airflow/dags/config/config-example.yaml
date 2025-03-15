@@ -1,0 +1,21 @@
+gcp:
+  project: "bigquery-dbt-crypto-pipeline" # Nome do projeto no GCP
+  bucket_name: "binance-api" # Nome do bucket no GCS
+  dataset_id: "crypto_pipeline_raw" # Nome do dataset no BigQuery
+  bigquery_conn_id: "bigquery-con" # Conexão do Airflow com o BigQuery
+  bigquery_location: "southamerica-east1" # Localização do banco de dados no BigQuery
+  datasets: ["crypto_pipeline_raw"] # Lista de datasets a serem criados no BigQuery
+
+binance:
+  base_url: "https://api.binance.com/api/v3/klines" # URL base da API da Binance
+  cryptos: ["BTCBRL", "ETHBRL", "SOLBRL"] # Lista de criptomoedas a serem extraídas
+  interval: "1m" # Intervalo de tempo para os dados
+  limit: 1000 # Quantidade máxima de resultados retornados pela API
+  default_start_time: 1577836800000 # Data e horário em milisegundos do primeiro dado a ser extraído por padrão da API
+
+dbt:
+  image: "ghcr.io/dbt-labs/dbt-bigquery:latest" # Imagem do Docker do dbt
+  docker_network: "bigquery-dbt-crypto-pipeline" # Nome da rede do Docker
+  project_dir: "(caminho_absoluto_projeto)/bigquery-dbt-crypto-pipeline/airflow/dbt/crypto_pipeline" # Caminho absoluto do projeto do dbt
+  profiles_dir: "(caminho_absoluto_projeto)/bigquery-dbt-crypto-pipeline/airflow/dbt" # Caminho absoluto do diretório de perfis do dbt
+  gcloud_credentials_dir: "(caminho_absoluto_projeto)/bigquery-dbt-crypto-pipeline/airflow/credentials" # Caminho absoluto do diretório de credenciais do gcloud
