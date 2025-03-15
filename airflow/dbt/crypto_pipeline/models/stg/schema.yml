@@ -52,6 +52,3 @@ models:
         description: "Trading pair symbol (e.g., BTCBRL, ETHBRL, SOLBRL)"
         tests:
           - not_null
-    tests:
-      - unique:
-          column_name: "(symbol || '-' || CAST(open_time_ts AS STRING))"

@@ -38,3 +38,9 @@ O objetivo é construir uma solução escalável e eficiente para análise do me
     - Utilizando dbt, os dados passam por tratamento e transformação nas camadas:
         - STG (Staging) → Normaliza e padroniza os dados extraídos.
         - Analytics → Modelos agregados para análise e visualização.
+
+---
+
+## 📖 Manual de Replicação do Projeto (em construção)
+
+Atualmente, estou desenvolvendo um passo a passo detalhado para que qualquer pessoa possa replicar este pipeline do zero. O manual cobrirá a configuração do ambiente, execução dos processos e melhores práticas para garantir um fluxo de dados eficiente.

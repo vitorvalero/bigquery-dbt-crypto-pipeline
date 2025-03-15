@@ -4,3 +4,4 @@ pandas
 google-cloud-bigquery
 google-cloud-storage
 python-dotenv
+apache-airflow-providers-docker

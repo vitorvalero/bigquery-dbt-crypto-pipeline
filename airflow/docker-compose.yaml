@@ -82,7 +82,7 @@ x-airflow-common:
     - ./credentials:/opt/airflow/credentials
     - ./credentials/bigquery-dbt-crypto-pipeline-090dfc645ea8.json:/opt/airflow/credentials/bigquery-dbt-crypto-pipeline-090dfc645ea8.json
     - ./.env:/opt/airflow/.env
-    - /var/run/docker.sock:/run/docker.sock
+    - /var/run/docker.sock:/var/run/docker.sock
     - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
