@@ -1,46 +1,40 @@
-# 🚀 Binance Crypto Pipeline - ELT com Airflow, BigQuery e DBT
+# 🚀 Binance Crypto Pipeline - ELT with Airflow, BigQuery, and DBT
 
-![Badge](https://img.shields.io/badge/Status-Concluído-green?style=for-the-badge)
-![Badge](https://img.shields.io/badge/Versão-1.0-blue?style=for-the-badge)
+![Badge](https://img.shields.io/badge/Status-Completed-green?style=for-the-badge)
+![Badge](https://img.shields.io/badge/Version-1.0-blue?style=for-the-badge)
 
-## 📌 Sobre o Projeto
+## 📌 About the Project
 
-Este é um projeto autoral de pipeline de **ELT (Extract, Load, Transform)** para coleta, armazenamento e processamento de dados de trading da **API** da Binance. O pipeline armazena os dados brutos no **Google Cloud Storage (GCS)**, carrega no **BigQuery** e realiza transformações utilizando **dbt**.
+This is an **ELT (Extract, Load, Transform)** pipeline project for collecting, storing, and processing trading data from Binance’s **API**. The pipeline stores raw data in **Google Cloud Storage (GCS)**, loads it into **BigQuery**, and performs transformations using **dbt**.
 
-O objetivo é construir uma solução escalável e eficiente para análise do mercado de criptomoedas, seguindo boas práticas de engenharia de dados. Toda a arquitetura e implementação foram desenvolvidas do zero.
-
----
-
-## 🛠 Ferramentas Utilizadas
-
-- ✅ **Docker** - Containerização dos serviços para garantir reprodutibilidade e escalabilidade.
-- ✅ **Airflow** - Orquestração das DAGs para extração, carga e processamento dos dados.
-- ✅ **Google Cloud Storage (GCS)** - Armazenamento dos dados brutos em formato Parquet.
-- ✅ **BigQuery** - Data Warehouse utilizado para armazenar e processar grandes volumes de dados.
-- ✅ **dbt** - Modelagem e transformação dos dados, estruturando as camadas STG (Stage) e Analytics.
+The goal is to build a scalable and efficient solution for cryptocurrency market analysis, following best practices in data engineering. The entire architecture and implementation were developed from scratch.
 
 ---
 
-## 🏗 Arquitetura do Pipeline
+## 🛠 Tools Used
 
-- **Extração de Dados**
-    - O Airflow agenda e executa a coleta de dados da API da Binance em tempo real.
-    - Os dados são extraídos no formato JSON e convertidos para Parquet.
-
-- **Armazenamento no Google Cloud Storage (GCS)**
-    - Os arquivos Parquet são armazenados no GCS, mantendo assim cópia dos dados com seu conteúdo e estrutura original .
-
-- **Carga no BigQuery**
-    - O Airflow carrega os arquivos Parquet para a camada raw do BigQuery.
-    - Os dados são armazenados com particionamento por data para otimizar consultas.
-
-- **Transformação e Modelagem**
-    - Utilizando dbt, os dados passam por tratamento e transformação nas camadas:
-        - STG (Staging) → Normaliza e padroniza os dados extraídos.
-        - Analytics → Modelos agregados para análise e visualização.
+- ✅ **Docker** - Containerization of services to ensure reproducibility and scalability.
+- ✅ **Airflow** - Orchestration of DAGs for data extraction, loading, and processing.
+- ✅ **Google Cloud Storage (GCS)** - Storage of raw data in Parquet format.
+- ✅ **BigQuery** - Data warehouse used to store and process large volumes of data.
+- ✅ **dbt** - Data modeling and transformation, structuring the STG (Stage) and Analytics layers.
 
 ---
 
-## 📖 Manual de Replicação do Projeto (em construção)
+## 🏗 Pipeline Architecture
 
-Atualmente, estou desenvolvendo um passo a passo detalhado para que qualquer pessoa possa replicar este pipeline do zero. O manual cobrirá a configuração do ambiente, execução dos processos e melhores práticas para garantir um fluxo de dados eficiente.
+- **Data Extraction**
+    - Airflow schedules and executes real-time data collection from the Binance API.
+    - Data is extracted in JSON format and converted to Parquet.
+
+- **Storage in Google Cloud Storage (GCS)**
+    - Parquet files are stored in GCS, preserving the content and structure of the original data.
+
+- **Loading into BigQuery**
+    - Airflow loads the Parquet files into the raw layer of BigQuery.
+    - Data is stored with date partitioning to optimize queries.
+
+- **Transformation and Modeling**
+    - Using dbt, data undergoes cleaning and transformation in the following layers:
+        - STG (Staging) → Normalizes and standardizes the extracted data.
+        - Analytics → Aggregated models for analysis and visualization.
